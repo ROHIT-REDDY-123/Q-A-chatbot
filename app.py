@@ -56,28 +56,21 @@ if submit:
         st.error("Missing GOOGLE_API_KEY. Add it to your environment or .env and restart the app.")
     else:
         with st.spinner("Contacting Gemini..."):
-            try:
-                llm = create_llm()
-                # Use messages (SystemMessage + HumanMessage) to be explicit for a chat model
-                messages = [
-                    SystemMessage(content="You are a helpful assistant that helps people find information."),
-                    HumanMessage(content=prompt),
-                ]
-                # Some versions accept calling with a list of messages directly.
-                # If that fails, .generate expects a list of message-lists: .generate([[msg1,msg2]])
-                try:
-                    raw = llm(messages)   # try the simpler call first
-                except TypeError:
-                    # fallback to batch-style generate
-                    gen = llm.generate([messages])
-                    raw = gen  # handle in extractor
-                text = extract_text(raw)
-                st.subheader("Response")
-                st.write(text)
-            except Exception as e:
-                st.error(f"Model call failed: {e}")
-                # Optional: show repr for debugging
-                st.write(repr(e))
+            llm = create_llm()
+
+            # Use explicit chat messages
+            messages = [
+                SystemMessage(content="You are a helpful assistant that helps people find information."),
+                HumanMessage(content=prompt),
+            ]
+
+            # Direct call (most models accept this format)
+            raw = llm(messages)
+
+            # Extract and display
+            text = extract_text(raw)
+            st.subheader("Response")
+            st.write(text)
 
 
 
